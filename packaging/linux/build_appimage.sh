@@ -6,7 +6,7 @@ echo "Starting AppImage Packaging..."
 # Directories
 WORKSPACE=$(pwd)
 APP_DIR="${WORKSPACE}/AppDir"
-DIST_DIR="${WORKSPACE}/client.dist"
+DIST_DIR="${WORKSPACE}/app.dist"
 
 # Cleanup
 rm -rf "${APP_DIR}"

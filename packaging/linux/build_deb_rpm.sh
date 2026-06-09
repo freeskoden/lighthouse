@@ -5,7 +5,7 @@ echo "Starting DEB & RPM Packaging..."
 
 WORKSPACE=$(pwd)
 DEB_DIR="${WORKSPACE}/deb_build"
-CLIENT_DIST="${WORKSPACE}/client.dist"
+CLIENT_DIST="${WORKSPACE}/app.dist"
 SERVER_DIST="${WORKSPACE}/server.dist"
 
 # Cleanup
