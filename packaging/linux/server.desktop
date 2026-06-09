@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Lighthouse Server
+Comment=Freeskoden Lighthouse Coordination Server
+Exec=lighthouse-server
+Icon=lighthouse-server
+Terminal=true
+Categories=Utility;Network;Server;

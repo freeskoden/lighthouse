@@ -27,26 +27,26 @@ jobs:
           python -m pip install -r client/requirements.txt -r server/requirements.txt
           python -m pip install nuitka
 
-      - name: Compile Server (Nuitka)
+      - name: Compile Server (Nuitka with Icon)
         run: |
-          python -m nuitka --standalone --onefile --assume-yes-for-downloads server/server.py
+          python -m nuitka --standalone --onefile --windows-icon-from-ico=packaging/windows/icon.ico --assume-yes-for-downloads server/server.py
 
-      - name: Compile Client (Nuitka)
+      - name: Compile Client (Nuitka with Icon)
         run: |
-          python -m nuitka --standalone --onefile --windows-disable-console --enable-plugin=tk-inter --assume-yes-for-downloads client/app.py
+          python -m nuitka --standalone --onefile --windows-disable-console --enable-plugin=tk-inter --windows-icon-from-ico=packaging/windows/icon.ico --assume-yes-for-downloads client/app.py
 
-      - name: Rename Binaries
+      - name: Rename Binaries to Final Names
         run: |
-          mv server.exe freeskoden-lighthouse-server.exe
-          mv app.exe freeskoden-lighthouse-client.exe
+          mv server.exe "Lighthouse Server.exe"
+          mv app.exe Lighthouse.exe
 
       - name: Upload Windows Executables
         uses: actions/upload-artifact@v4
         with:
           name: Windows-64bit-Binaries
           path: |
-            freeskoden-lighthouse-server.exe
-            freeskoden-lighthouse-client.exe
+            Lighthouse Server.exe
+            Lighthouse.exe
 
   build-macos-intel:
     name: macOS Intel 64-bit Build
@@ -67,32 +67,37 @@ jobs:
           python -m pip install -r client/requirements.txt -r server/requirements.txt
           python -m pip install nuitka
 
-      - name: Compile Server (Nuitka)
+      - name: Compile Server (Nuitka Standalone)
         run: |
           python -m nuitka --standalone server/server.py
 
-      - name: Compile Client (Nuitka App Bundle)
+      - name: Compile Client (Nuitka App Bundle with Icon)
         run: |
-          # Nuitka creates a native .app bundle structure on macOS
-          python -m nuitka --standalone --macos-create-app-bundle client/app.py
+          python -m nuitka --standalone --macos-create-app-bundle --macos-app-icon=packaging/macos/icon.icns client/app.py
 
-      - name: Structure App Bundle Metadata
+      - name: Rename macOS Bundles and Inject Metadata
         run: |
+          # Rename Client App Bundle to 'Lighthouse.app'
+          mv app.app Lighthouse.app
           # Inject Info.plist
-          cp packaging/macos/Info.plist app.app/Contents/Info.plist
+          cp packaging/macos/Info.plist Lighthouse.app/Contents/Info.plist
+          
+          # Rename Server binary to 'Lighthouse Server'
+          mv server.dist "Lighthouse Server.dist"
+          mv "Lighthouse Server.dist/server" "Lighthouse Server.dist/Lighthouse Server"
 
       - name: Compress Outputs
         run: |
-          zip -r Freeskoden_Lighthouse_Server_macOS_Intel.zip server.dist/
-          zip -r Freeskoden_Lighthouse_Client_macOS_Intel.zip app.app/
+          zip -r Lighthouse_Server_macOS_Intel.zip "Lighthouse Server.dist/"
+          zip -r Lighthouse_Client_macOS_Intel.zip Lighthouse.app/
 
       - name: Upload macOS Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: macOS-Intel-Binaries
           path: |
-            Freeskoden_Lighthouse_Server_macOS_Intel.zip
-            Freeskoden_Lighthouse_Client_macOS_Intel.zip
+            Lighthouse_Server_macOS_Intel.zip
+            Lighthouse_Client_macOS_Intel.zip
 
   build-linux:
     name: Linux x86_64 Build
@@ -144,6 +149,6 @@ jobs:
         with:
           name: Linux-x86_64-Packages
           path: |
-            Freeskoden_Lighthouse-x86_64.AppImage
+            Lighthouse-x86_64.AppImage
             freeskoden-lighthouse_1.0.0_amd64.deb
             freeskoden-lighthouse*.rpm

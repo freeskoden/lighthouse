@@ -1,9 +1,9 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=Freeskoden Lighthouse
+Name=Lighthouse
 Comment=Freeskoden Lighthouse Remote Control Client
-Exec=freeskoden-lighthouse-client
-Icon=freeskoden-lighthouse
+Exec=lighthouse
+Icon=lighthouse
 Terminal=false
 Categories=Utility;Network;RemoteAccess;

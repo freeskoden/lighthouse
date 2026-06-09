@@ -58,9 +58,21 @@ class LighthouseApp(ctk.CTk):
     def __init__(self):
         super().__init__()
         
-        self.title("Freeskoden Lighthouse")
+        # Set app window title
+        self.title("Lighthouse")
         self.geometry("750x450")
         self.resizable(False, False)
+
+        # Set window icon dynamically if exists
+        try:
+            curr_dir = os.path.dirname(os.path.abspath(__file__))
+            icon_path = os.path.join(curr_dir, "packaging", "windows", "icon.ico")
+            if not os.path.exists(icon_path):
+                icon_path = os.path.join(os.path.dirname(curr_dir), "packaging", "windows", "icon.ico")
+            if os.path.exists(icon_path):
+                self.iconbitmap(icon_path)
+        except Exception:
+            pass
         
         # Load configs
         self.settings = load_settings()
@@ -246,7 +258,7 @@ class LighthouseApp(ctk.CTk):
         # Create setting Toplevel dialog
         self.settings_win = ctk.CTkToplevel(self)
         self.settings_win.title("Lighthouse Settings")
-        self.settings_win.geometry("400x380")
+        self.settings_win.geometry("400x500")
         self.settings_win.resizable(False, False)
         
         # Grab focus
@@ -292,7 +304,7 @@ class LighthouseApp(ctk.CTk):
 
         # Action Buttons (Save & Cancel)
         btn_frame = ctk.CTkFrame(frame, fg_color="transparent")
-        btn_frame.pack(pady=15)
+        btn_frame.pack(pady=10)
 
         btn_save = ctk.CTkButton(
             btn_frame, 
@@ -311,6 +323,34 @@ class LighthouseApp(ctk.CTk):
             command=self.settings_win.destroy
         )
         btn_cancel.pack(side="right", padx=10)
+
+        # About & Support (Developer & PayPal Donation info)
+        separator = ctk.CTkFrame(frame, height=2, fg_color="gray25")
+        separator.pack(fill="x", pady=10)
+
+        lbl_about = ctk.CTkLabel(frame, text="About & Support", font=ctk.CTkFont(size=12, weight="bold"))
+        lbl_about.pack(pady=2)
+
+        lbl_programmer = ctk.CTkLabel(frame, text="Programmer: Freeskoden Team", font=ctk.CTkFont(size=11))
+        lbl_programmer.pack(pady=2)
+
+        btn_donate = ctk.CTkButton(
+            frame, 
+            text="Donate via PayPal", 
+            fg_color="#FFC439", 
+            hover_color="#E5AF30", 
+            text_color="#000000",
+            font=ctk.CTkFont(size=12, weight="bold"),
+            command=self.open_paypal
+        )
+        btn_donate.pack(pady=5)
+
+    def open_paypal(self):
+        try:
+            import webbrowser
+            webbrowser.open("https://paypal.me/freeskoden")
+        except Exception as e:
+            logging.error(f"Failed to open donation link: {e}")
 
     def toggle_cf_entry(self):
         if self.cf_var.get():

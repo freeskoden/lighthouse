@@ -20,19 +20,24 @@ if [ ! -d "${DIST_DIR}" ]; then
 fi
 cp -r "${DIST_DIR}"/* "${APP_DIR}/usr/bin/"
 
+# Rename binary from 'app' to 'lighthouse' to match icon name 'Lighthouse'
+if [ -f "${APP_DIR}/usr/bin/app" ]; then
+    mv "${APP_DIR}/usr/bin/app" "${APP_DIR}/usr/bin/lighthouse"
+fi
+
 # 2. Copy launcher assets
-cp "${WORKSPACE}/packaging/linux/client.desktop" "${APP_DIR}/freeskoden-lighthouse.desktop"
-cp "${WORKSPACE}/packaging/linux/icon.png" "${APP_DIR}/freeskoden-lighthouse.png"
+# The client launcher must be named 'Lighthouse'
+cp "${WORKSPACE}/packaging/linux/client.desktop" "${APP_DIR}/Lighthouse.desktop"
+cp "${WORKSPACE}/packaging/linux/icon.png" "${APP_DIR}/lighthouse.png"
 cp "${WORKSPACE}/packaging/linux/icon.png" "${APP_DIR}/.DirIcon"
 
-# 3. Create AppRun script
+# 3. Create AppRun script pointing to 'lighthouse' binary
 echo "Creating AppRun entrypoint..."
 cat << 'EOF' > "${APP_DIR}/AppRun"
 #!/bin/sh
 SELF=$(dirname "$(readlink -f "$0")")
-# Nuitka standalone places binary dependencies next to the main executable
 export LD_LIBRARY_PATH="${SELF}/usr/bin:${LD_LIBRARY_PATH}"
-exec "${SELF}/usr/bin/app" "$@"
+exec "${SELF}/usr/bin/lighthouse" "$@"
 EOF
 chmod +x "${APP_DIR}/AppRun"
 
@@ -43,10 +48,9 @@ if [ ! -f "appimagetool-x86_64.AppImage" ]; then
     chmod +x appimagetool-x86_64.AppImage
 fi
 
-# 5. Build the AppImage
+# 5. Build the AppImage as 'Lighthouse-x86_64.AppImage'
 echo "Building AppImage..."
 export ARCH=x86_64
-# We use --appimage-extract-and-run because GitHub runners don't support FUSE by default
-./appimagetool-x86_64.AppImage --appimage-extract-and-run "${APP_DIR}" "${WORKSPACE}/Freeskoden_Lighthouse-x86_64.AppImage"
+./appimagetool-x86_64.AppImage --appimage-extract-and-run "${APP_DIR}" "${WORKSPACE}/Lighthouse-x86_64.AppImage"
 
 echo "AppImage Packaging Complete!"
