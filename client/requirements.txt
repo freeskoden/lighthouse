@@ -1,0 +1,5 @@
+customtkinter
+mss
+pynput
+websockets
+pillow

@@ -1,0 +1,149 @@
+name: Multi-Platform Standalone Build Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+jobs:
+  build-windows:
+    name: Windows 64-bit Build
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r client/requirements.txt -r server/requirements.txt
+          python -m pip install nuitka
+
+      - name: Compile Server (Nuitka)
+        run: |
+          python -m nuitka --standalone --onefile --assume-yes-for-downloads server/server.py
+
+      - name: Compile Client (Nuitka)
+        run: |
+          python -m nuitka --standalone --onefile --windows-disable-console --enable-plugin=tk-inter --assume-yes-for-downloads client/app.py
+
+      - name: Rename Binaries
+        run: |
+          mv server.exe freeskoden-lighthouse-server.exe
+          mv app.exe freeskoden-lighthouse-client.exe
+
+      - name: Upload Windows Executables
+        uses: actions/upload-artifact@v4
+        with:
+          name: Windows-64bit-Binaries
+          path: |
+            freeskoden-lighthouse-server.exe
+            freeskoden-lighthouse-client.exe
+
+  build-macos-intel:
+    name: macOS Intel 64-bit Build
+    runs-on: macos-13 # Using macOS 13 which runs on Intel x86_64 hardware
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r client/requirements.txt -r server/requirements.txt
+          python -m pip install nuitka
+
+      - name: Compile Server (Nuitka)
+        run: |
+          python -m nuitka --standalone server/server.py
+
+      - name: Compile Client (Nuitka App Bundle)
+        run: |
+          # Nuitka creates a native .app bundle structure on macOS
+          python -m nuitka --standalone --macos-create-app-bundle client/app.py
+
+      - name: Structure App Bundle Metadata
+        run: |
+          # Inject Info.plist
+          cp packaging/macos/Info.plist app.app/Contents/Info.plist
+
+      - name: Compress Outputs
+        run: |
+          zip -r Freeskoden_Lighthouse_Server_macOS_Intel.zip server.dist/
+          zip -r Freeskoden_Lighthouse_Client_macOS_Intel.zip app.app/
+
+      - name: Upload macOS Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macOS-Intel-Binaries
+          path: |
+            Freeskoden_Lighthouse_Server_macOS_Intel.zip
+            Freeskoden_Lighthouse_Client_macOS_Intel.zip
+
+  build-linux:
+    name: Linux x86_64 Build
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install Linux Build Utilities
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y patchelf build-essential dpkg alien rpm wget
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r client/requirements.txt -r server/requirements.txt
+          python -m pip install nuitka
+
+      - name: Compile Server (Nuitka Standalone)
+        run: |
+          python -m nuitka --standalone server/server.py
+
+      - name: Compile Client (Nuitka Standalone)
+        run: |
+          python -m nuitka --standalone client/app.py
+
+      - name: Make Scripts Executable
+        run: |
+          chmod +x packaging/linux/build_appimage.sh
+          chmod +x packaging/linux/build_deb_rpm.sh
+
+      - name: Build AppImage Package
+        run: |
+          ./packaging/linux/build_appimage.sh
+
+      - name: Build DEB and RPM Packages
+        run: |
+          ./packaging/linux/build_deb_rpm.sh
+
+      - name: Upload Linux Portable Packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: Linux-x86_64-Packages
+          path: |
+            Freeskoden_Lighthouse-x86_64.AppImage
+            freeskoden-lighthouse_1.0.0_amd64.deb
+            freeskoden-lighthouse*.rpm

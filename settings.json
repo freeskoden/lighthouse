@@ -1,0 +1,6 @@
+{
+    "server_hostname": "localhost",
+    "server_port": 8765,
+    "use_cloudflare": true,
+    "cloudflare_url": "light.xono.my.id"
+}
