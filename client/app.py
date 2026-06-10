@@ -331,7 +331,7 @@ class LighthouseApp(ctk.CTk):
         lbl_about = ctk.CTkLabel(frame, text="About & Support", font=ctk.CTkFont(size=12, weight="bold"))
         lbl_about.pack(pady=2)
 
-        lbl_programmer = ctk.CTkLabel(frame, text="Programmer: Freeskoden Team", font=ctk.CTkFont(size=11))
+        lbl_programmer = ctk.CTkLabel(frame, text="Programmer: Anthony Markus", font=ctk.CTkFont(size=11))
         lbl_programmer.pack(pady=2)
 
         btn_donate = ctk.CTkButton(
@@ -348,7 +348,7 @@ class LighthouseApp(ctk.CTk):
     def open_paypal(self):
         try:
             import webbrowser
-            webbrowser.open("https://paypal.me/freeskoden")
+            webbrowser.open("https://paypal.me/anthonyrasat")
         except Exception as e:
             logging.error(f"Failed to open donation link: {e}")
 

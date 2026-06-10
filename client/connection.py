@@ -102,14 +102,14 @@ class LighthouseConnection:
             # Re-read settings in case they changed
             if self.settings.get("use_cloudflare") and self.settings.get("cloudflare_url"):
                 url = self.settings.get("cloudflare_url")
+                if not url.startswith("ws://") and not url.startswith("wss://"):
+                    url = "wss://" + url
             else:
                 host = self.settings.get("server_hostname", "localhost")
                 port = self.settings.get("server_port", 8765)
                 url = f"ws://{host}:{port}"
-                
-            # Formatting URL
-            if not url.startswith("ws://") and not url.startswith("wss://"):
-                url = "ws://" + url
+                if not url.startswith("ws://") and not url.startswith("wss://"):
+                    url = "ws://" + url
 
             self.on_status_changed(f"Connecting to {url}...")
             try:
