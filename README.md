@@ -108,14 +108,17 @@ To compile the server and client into standalone, compiled executables so the so
    ```
 2. Compile the **Server**:
    ```powershell
-   nuitka --standalone --onefile server/server.py
+   nuitka --standalone server/server.py
    ```
-   This generates a single `server.exe` that contains the compiled Python server code.
+   This generates a `server.dist` directory containing the compiled Python server executable along with its required DLLs.
 3. Compile the **Client**:
    ```powershell
-   nuitka --standalone --onefile --windows-disable-console --enable-plugin=tk-inter client/app.py
+   nuitka --standalone --windows-disable-console --enable-plugin=tk-inter client/app.py
    ```
    *Note: `--windows-disable-console` hides the command prompt window behind the GUI client, and `--enable-plugin=tk-inter` is required to bundle Tkinter components properly.*
+   This generates an `app.dist` directory containing the compiled client GUI executable along with its required DLLs.
+4. **Distribution**:
+   For distribution, simply zip the respective `.dist` folder (e.g. rename it to `Lighthouse` or `Lighthouse Server` and zip it). This folder-based standalone distribution starts up much faster and avoids dropper-like heuristic false positives in antiviruses.
 
 ---
 

@@ -29,24 +29,31 @@ jobs:
 
       - name: Compile Server (Nuitka with Icon)
         run: |
-          python -m nuitka --standalone --onefile --windows-icon-from-ico=packaging/windows/icon.ico --assume-yes-for-downloads server/server.py
+          python -m nuitka --standalone --windows-icon-from-ico=packaging/windows/icon.ico --assume-yes-for-downloads server/server.py
 
       - name: Compile Client (Nuitka with Icon)
         run: |
-          python -m nuitka --standalone --onefile --windows-disable-console --enable-plugin=tk-inter --windows-icon-from-ico=packaging/windows/icon.ico --assume-yes-for-downloads client/app.py
+          python -m nuitka --standalone --windows-disable-console --enable-plugin=tk-inter --windows-icon-from-ico=packaging/windows/icon.ico --assume-yes-for-downloads client/app.py
 
-      - name: Rename Binaries to Final Names
+      - name: Rename and Structure Standalone Folders
         run: |
-          mv server.exe "Lighthouse Server.exe"
-          mv app.exe Lighthouse.exe
+          mv server.dist "Lighthouse Server"
+          mv "Lighthouse Server/server.exe" "Lighthouse Server/Lighthouse Server.exe"
+          mv app.dist Lighthouse
+          mv Lighthouse/app.exe Lighthouse/Lighthouse.exe
 
-      - name: Upload Windows Executables
+      - name: Compress Standalone Folders
+        run: |
+          Compress-Archive -Path "Lighthouse Server" -DestinationPath Lighthouse_Server_Windows_64bit.zip
+          Compress-Archive -Path Lighthouse -DestinationPath Lighthouse_Windows_64bit.zip
+
+      - name: Upload Windows Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: Windows-64bit-Binaries
           path: |
-            Lighthouse Server.exe
-            Lighthouse.exe
+            Lighthouse_Server_Windows_64bit.zip
+            Lighthouse_Windows_64bit.zip
 
   build-macos-intel:
     name: macOS Intel 64-bit Build
